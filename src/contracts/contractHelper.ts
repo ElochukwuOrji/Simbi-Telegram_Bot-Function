@@ -1,15 +1,16 @@
-import { ethers, JsonRpcProvider, Wallet, formatUnits, parseUnits } from "ethers";
+import { ethers, parseUnits, formatUnits, Wallet, Contract } from "ethers";
 import dotenv from "dotenv";
-import SimbiToken from "./abis/SimbiToken.json" assert { type: "json" };
+import SimbiToken from "./abis/SimbiToken.json";
 import { logSepoliaInteraction } from "../utils/logger";
 
 dotenv.config();
 
-// Sepolia-specific provider setup
-const provider = new JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
+// Initialize provider and wallet
+const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
 const wallet = new Wallet(process.env.BOT_WALLET_PRIVATE_KEY!, provider);
 
-export const contract = new ethers.Contract(
+// Contract instance
+export const contract = new Contract(
   process.env.CONTRACT_ADDRESS!,
   SimbiToken,
   wallet
@@ -25,7 +26,7 @@ export const createGroup = async ({
   participants,
   stakeAmount,
   durationSeconds = 3600
-}: CreateGroupParams) => {
+}: CreateGroupParams): Promise<{ txHash: string; gasUsed: string }> => {
   try {
     const tx = await contract.createSession(
       participants,
@@ -48,27 +49,25 @@ export const createGroup = async ({
       gasUsed: formatUnits(receipt.gasUsed, 'gwei')
     };
   } catch (error) {
-    console.error('Sepolia Contract Error:', error);
-    throw error;
+    console.error("Sepolia Contract Error:", error);
+    throw new Error("Failed to create group");
   }
 };
 
 interface StakeParams {
   userId: string;
   amount: number;
-  groupId?: string; // Optional if you're using group IDs
+  groupId?: string;
 }
 
 export const stake = async ({
   userId,
   amount,
-  groupId = "0" // Default or parse from input
-}: StakeParams) => {
+  groupId = "0"
+}: StakeParams): Promise<{ txHash: string; gasUsed: string }> => {
   try {
-    // Assuming your contract has a stake function
-    // Adjust this based on your actual contract ABI
     const tx = await contract.stake(
-      userId, // or groupId if that's what your contract expects
+      userId,
       parseUnits(amount.toString(), 18),
       { gasLimit: 300000 }
     );
@@ -86,7 +85,7 @@ export const stake = async ({
       gasUsed: formatUnits(receipt.gasUsed, 'gwei')
     };
   } catch (error) {
-    console.error('Sepolia Contract Error:', error);
-    throw error;
+    console.error("Sepolia Contract Error:", error);
+    throw new Error("Failed to stake tokens");
   }
 };
