@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-   "start": "ts-node src/index.ts",
+    "start": "ts-node src/index.ts",
     "build": "tsc",
     "dev": "nodemon --exec ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,5 +19,9 @@
   "bugs": {
     "url": "https://github.com/ElochukwuOrji/Simbi-Telegram_Bot-Function/issues"
   },
-  "homepage": "https://github.com/ElochukwuOrji/Simbi-Telegram_Bot-Function#readme"
+  "homepage": "https://github.com/ElochukwuOrji/Simbi-Telegram_Bot-Function#readme",
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
 }
